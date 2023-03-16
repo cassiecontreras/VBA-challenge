@@ -1,0 +1,178 @@
+Sub multipleyearstockdata()
+
+
+Dim ws As Worksheet
+Dim lrow, lrowi, i, j, Summary_Table_Row As Long
+Dim ticker As String
+Dim stockopen, voltotal, openprice, closeprice, percent, yearlychange As Double
+Dim stockdata As Integer
+
+
+For Each ws In ThisWorkbook.Worksheets
+
+
+'declare initial variables
+Summary_Table_Row = 2
+j = 2
+
+
+'Clear Contents
+    'ws.Range("I:Q").ClearContents
+
+
+'Create Header Columns
+    ws.Range("I1").Value = "Ticker"
+    ws.Range("J1").Value = "Yearly Change"
+    ws.Range("K1").Value = "Percent Change"
+    ws.Range("L1").Value = "Total Stock Volume"
+
+    ws.Range("O2").Value = "Greatest % Increase"
+    ws.Range("O3").Value = "Greatest % Decrease"
+    ws.Range("O4").Value = "Greatest Total Volume"
+    ws.Range("P1").Value = "Ticker"
+    ws.Range("Q1").Value = "Value"
+
+   
+'Define last row in Column A
+lrow = ws.Cells(Rows.Count, 1).End(xlUp).Row
+
+'Loop1
+For i = 2 To lrow
+
+
+If ws.Cells(i + 1, 1).Value <> ws.Cells(i, 1).Value Then
+    ticker = ws.Cells(i, 1).Value
+    openprice = ws.Cells(j, 3).Value
+    closeprice = ws.Cells(i, 6).Value
+    yearlychange = closeprice - openprice
+    
+    'ConditionalFormatting
+    If yearlychange > 0 Then
+    ws.Range("J" & Summary_Table_Row).Interior.ColorIndex = 4
+    Else
+    ws.Range("J" & Summary_Table_Row).Interior.ColorIndex = 3
+    End If
+    'End Conditional Formatting
+    
+    If ws.Cells(j, 3).Value <> 0 Then
+    percentchange = ((ws.Cells(i, 6).Value - ws.Cells(j, 3).Value) / ws.Cells(j, 3).Value)
+    
+    'PercentFormatting
+    ws.Cells(Summary_Table_Row, 11).Value = Format(percentchange, "Percent")
+ 
+    
+    Else
+    
+    ws.Cells(Summary_Table_Row, 11).Value = Format(0, "Percent")
+    
+    
+    End If
+    
+    voltotal = voltotal + ws.Cells(i, 7).Value
+    
+    
+'Define the Summary Columns
+
+    ws.Range("I" & Summary_Table_Row).Value = ticker
+    ws.Range("J" & Summary_Table_Row).Value = yearlychange
+    ws.Range("K" & Summary_Table_Row).Value = percentchange
+    ws.Range("L" & Summary_Table_Row).Value = voltotal
+
+
+'add 1 to summary table row
+    Summary_Table_Row = Summary_Table_Row + 1
+    voltotal = 0
+    j = i + 1
+
+Else
+
+    voltotal = voltotal + ws.Cells(i, 7).Value
+    
+End If
+
+
+
+Next i
+
+
+
+
+'Update Part 2
+
+'Define last row in column I
+lrowi = ws.Cells(Rows.Count, "I").End(xlUp).Row
+
+
+'Define the Summary Columns for 2nd part
+    ws.Range("K" & Summary_Table_Row).Value = GreatIncrease
+    ws.Range("K" & Summary_Table_Row).Value = GreatDecrease
+    ws.Range("L" & Summary_Table_Row).Value = GreatVolume
+
+
+
+'Loop2
+For i = 2 To lrowi
+
+
+
+'GreatVolume
+If ws.Cells(i, 12).Value > GreatVolume Then
+    GreatVolume = ws.Cells(i, 12).Value
+    ws.Cells(4, 16).Value = ws.Cells(i, 9).Value
+
+    
+Else
+
+    GreatVolume = GreatVolume
+    
+End If
+
+    
+
+'GreatIncrease
+If ws.Cells(i, 11).Value > GreatIncrease Then
+    GreatIncrease = ws.Cells(i, 11).Value
+    ws.Cells(2, 16).Value = ws.Cells(i, 9).Value
+
+    
+Else
+
+    GreatIncrease = GreatIncrease
+    
+End If
+    
+    
+    
+'GreatDecrease
+If ws.Cells(i, 11).Value < GreatDecrease Then
+    GreatDecrease = ws.Cells(i, 11).Value
+    ws.Cells(3, 16).Value = ws.Cells(i, 9).Value
+
+    
+Else
+
+    GreatDecrease = GreatDecrease
+    
+End If
+
+
+
+Next i
+
+
+'Format cells
+ws.Cells(3, 17).Value = Format(GreatDecrease, "Percent")
+ws.Cells(2, 17).Value = Format(GreatIncrease, "Percent")
+ws.Cells(4, 17).Value = Format(GreatVolume, "Scientific")
+
+
+
+Next ws
+
+
+End Sub
+    
+
+
+
+
